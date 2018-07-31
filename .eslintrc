@@ -1,0 +1,8 @@
+{
+  "parser": "babel-eslint",
+  "extends": "@deecewan/eslint-config-flow",
+  "rules": {
+    /* let prettier handle this */
+    "spaced-comment": 0
+  }
+}
