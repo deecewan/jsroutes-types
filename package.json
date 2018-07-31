@@ -7,10 +7,12 @@
     "commander": "^2.16.0"
   },
   "name": "jsroutes-types",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Generate types from `JsRoutes` in a Rails application",
   "main": "index.js",
-  "bin": { "jsroutes-types": "./cli.js" },
+  "bin": {
+    "jsroutes-types": "./cli.js"
+  },
   "repository": "https://github.com/deecewan/jsroutes-types",
   "author": "David Buchan-Swanson <david.buchanswanson@gmail.com>",
   "license": "MIT",
