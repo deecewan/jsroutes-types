@@ -124,7 +124,7 @@ module.exports = function generateTypes(
       }
       return [required, [requiredObject]].map((req) => createType(req));
     })
-    .reduce((acc, curr) => [...acc, ...curr]);
+    .reduce((acc, curr) => [...acc, ...curr], []);
 
   const prog = t.file(t.program([stringableType, validValueType, ...types]));
 
