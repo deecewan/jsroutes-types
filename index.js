@@ -14,20 +14,34 @@ module.exports = function generateTypes(
   let result = [];
   const traverser = {
     MemberExpression(path) {
-      if (
-        path.node.property.name === 'Routes' &&
-        path.parent.type === 'AssignmentExpression'
-      ) {
-        const { properties } = path.parent.right;
-        result = properties.map((property) => ({
-          name: property.key.name,
-          requiredArgs: property.value.arguments[0].elements.map(
-            (a) => a.value,
-          ),
-          optionalArgs: property.value.arguments[1].elements.map(
-            (a) => a.value,
-          ),
-        }));
+      // https://github.com/railsware/js-routes/blob/master/CHANGELOG.md#v140
+      var isRouteSetterInObjectPreOneFour = path.node.property.name === 'Routes' && path.parent.type === 'AssignmentExpression'
+      var isRouteSetterInObjectPostOneFour = path.node.type === 'MemberExpression' && path.node.object.type === 'AssignmentExpression' && path.node.object.right.properties
+
+      if (isRouteSetterInObjectPreOneFour || isRouteSetterInObjectPostOneFour) {
+        var properties
+
+        if (isRouteSetterInObjectPreOneFour) {
+          properties = path.parent.right.properties
+
+          result = properties.map((property) => ({
+            name: property.key.name,
+            requiredArgs: property.value.arguments[0].elements.map(
+              (a) => a.value,
+            ),
+            optionalArgs: property.value.arguments[1].elements.map(
+              (a) => a.value,
+            ),
+          }));
+        } else if (isRouteSetterInObjectPostOneFour) {
+          properties = path.node.object.right.properties
+
+          result = properties.map((property) => ({
+            name: property.key.name,
+            requiredArgs: properties[0].value.arguments[0].elements.filter(a => a.elements[1].argument.value === 0).map(a => a.elements[0].value),
+            optionalArgs: properties[0].value.arguments[0].elements.filter(a => a.elements[1].argument.value === 1).map(a => a.elements[0].value),
+          }));
+        }
       }
     },
   };
