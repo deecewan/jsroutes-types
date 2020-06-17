@@ -38,8 +38,8 @@ module.exports = function generateTypes(
 
           result = properties.map((property) => ({
             name: property.key.name,
-            requiredArgs: properties[0].value.arguments[0].elements.filter(a => a.elements[1].argument.value === 0).map(a => a.elements[0].value),
-            optionalArgs: properties[0].value.arguments[0].elements.filter(a => a.elements[1].argument.value === 1).map(a => a.elements[0].value),
+            requiredArgs: property.value.arguments[0].elements.filter(a => a.elements[1].argument.value === 0).map(a => a.elements[0].value),
+            optionalArgs: property.value.arguments[0].elements.filter(a => a.elements[1].argument.value === 1).map(a => a.elements[0].value),
           }));
         }
       }
