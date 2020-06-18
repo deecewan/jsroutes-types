@@ -14,11 +14,18 @@ module.exports = function generateTypes(
   let result = [];
   const traverser = {
     MemberExpression(path) {
-      if (
+      // https://github.com/railsware/js-routes/blob/master/CHANGELOG.md#v140
+      const isRouteSetterInObjectPreOneFour =
         path.node.property.name === 'Routes' &&
-        path.parent.type === 'AssignmentExpression'
-      ) {
+        path.parent.type === 'AssignmentExpression';
+      const isRouteSetterInObjectPostOneFour =
+        path.node.type === 'MemberExpression' &&
+        path.node.object.type === 'AssignmentExpression' &&
+        path.node.object.right.properties != null;
+
+      if (isRouteSetterInObjectPreOneFour) {
         const { properties } = path.parent.right;
+
         result = properties.map((property) => ({
           name: property.key.name,
           requiredArgs: property.value.arguments[0].elements.map(
@@ -27,6 +34,18 @@ module.exports = function generateTypes(
           optionalArgs: property.value.arguments[1].elements.map(
             (a) => a.value,
           ),
+        }));
+      } else if (isRouteSetterInObjectPostOneFour) {
+        const { properties } = path.node.object.right;
+
+        result = properties.map((property) => ({
+          name: property.key.name,
+          requiredArgs: property.value.arguments[0].elements
+            .filter((a) => a.elements[1].argument.value === 0)
+            .map((a) => a.elements[0].value),
+          optionalArgs: property.value.arguments[0].elements
+            .filter((a) => a.elements[1].argument.value === 1)
+            .map((a) => a.elements[0].value),
         }));
       }
     },
