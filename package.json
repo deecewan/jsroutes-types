@@ -7,7 +7,7 @@
     "commander": "^2.16.0"
   },
   "name": "jsroutes-types",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Generate types from `JsRoutes` in a Rails application",
   "main": "index.js",
   "bin": {
