@@ -15,33 +15,38 @@ module.exports = function generateTypes(
   const traverser = {
     MemberExpression(path) {
       // https://github.com/railsware/js-routes/blob/master/CHANGELOG.md#v140
-      var isRouteSetterInObjectPreOneFour = path.node.property.name === 'Routes' && path.parent.type === 'AssignmentExpression'
-      var isRouteSetterInObjectPostOneFour = path.node.type === 'MemberExpression' && path.node.object.type === 'AssignmentExpression' && path.node.object.right.properties
+      const isRouteSetterInObjectPreOneFour =
+        path.node.property.name === 'Routes' &&
+        path.parent.type === 'AssignmentExpression';
+      const isRouteSetterInObjectPostOneFour =
+        path.node.type === 'MemberExpression' &&
+        path.node.object.type === 'AssignmentExpression' &&
+        path.node.object.right.properties != null;
 
-      if (isRouteSetterInObjectPreOneFour || isRouteSetterInObjectPostOneFour) {
-        var properties
+      if (isRouteSetterInObjectPreOneFour) {
+        const { properties } = path.parent.right;
 
-        if (isRouteSetterInObjectPreOneFour) {
-          properties = path.parent.right.properties
+        result = properties.map((property) => ({
+          name: property.key.name,
+          requiredArgs: property.value.arguments[0].elements.map(
+            (a) => a.value,
+          ),
+          optionalArgs: property.value.arguments[1].elements.map(
+            (a) => a.value,
+          ),
+        }));
+      } else if (isRouteSetterInObjectPostOneFour) {
+        const { properties } = path.node.object.right;
 
-          result = properties.map((property) => ({
-            name: property.key.name,
-            requiredArgs: property.value.arguments[0].elements.map(
-              (a) => a.value,
-            ),
-            optionalArgs: property.value.arguments[1].elements.map(
-              (a) => a.value,
-            ),
-          }));
-        } else if (isRouteSetterInObjectPostOneFour) {
-          properties = path.node.object.right.properties
-
-          result = properties.map((property) => ({
-            name: property.key.name,
-            requiredArgs: property.value.arguments[0].elements.filter(a => a.elements[1].argument.value === 0).map(a => a.elements[0].value),
-            optionalArgs: property.value.arguments[0].elements.filter(a => a.elements[1].argument.value === 1).map(a => a.elements[0].value),
-          }));
-        }
+        result = properties.map((property) => ({
+          name: property.key.name,
+          requiredArgs: property.value.arguments[0].elements
+            .filter((a) => a.elements[1].argument.value === 0)
+            .map((a) => a.elements[0].value),
+          optionalArgs: property.value.arguments[0].elements
+            .filter((a) => a.elements[1].argument.value === 1)
+            .map((a) => a.elements[0].value),
+        }));
       }
     },
   };
